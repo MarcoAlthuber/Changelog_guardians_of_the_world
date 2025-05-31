@@ -9,20 +9,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Poslať správu na Discord
+        env:
+          WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK }}
+          RELEASE_NAME: ${{ github.event.release.name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_BODY: ${{ github.event.release.body }}
+          RELEASE_TIME: ${{ github.event.release.published_at }}
         run: |
+          JSON=$(cat <<EOF
+{
+  "embeds": [
+    {
+      "title": "🚀 Nová verzia bola vydaná: $RELEASE_TAG",
+      "description": "**📌 Názov:** $RELEASE_NAME\n\n📝 **Zoznam zmien:**\n$RELEASE_BODY",
+      "color": 16753920,
+      "timestamp": "$RELEASE_TIME"
+    }
+  ]
+}
+EOF
+)
           curl -H "Content-Type: application/json" \
                -X POST \
-               -d "$(jq -n --arg title "🚀 Nová verzia bola vydaná: ${{ github.event.release.tag_name }}" \
-                        --arg name "${{ github.event.release.name }}" \
-                        --arg body "${{ github.event.release.body }}" \
-                        --arg timestamp "${{ github.event.release.published_at }}" \
-                        '{
-                          embeds: [{
-                            title: $title,
-                            description: "**📌 Názov:** " + $name + "\n\n📝 **Zoznam zmien:**\n" + $body,
-                            color: 16753920,
-                            timestamp: $timestamp
-                          }]
-                        }'
-                  )" \
-               ${{ secrets.DISCORD_WEBHOOK }}
+               -d "$JSON" \
+               "$WEBHOOK_URL"
