@@ -15,7 +15,7 @@ jobs:
                -d "{
                  \"embeds\": [{
                    \"title\": \"🚀 Nová verzia bola vydaná: ${{ github.event.release.tag_name }}\",
-                   \"description\": \"**📌 Názov:** ${{ github.event.release.name }}\\n🔗 [Zobraziť release](${{ github.event.release.html_url }})\\n\\n📝 **Zoznam zmien:**\\n```\n${{ github.event.release.body }}\n``` \",
+                   \"description\": \"**📌 Názov:** ${{ github.event.release.name }}\\n\\n📝 **Zoznam zmien:**\\n```\n${{ github.event.release.body }}\n``` \",
                    \"color\": 16753920,
                    \"footer\": {
                      \"text\": \"Automatické oznámenie z GitHubu\"
