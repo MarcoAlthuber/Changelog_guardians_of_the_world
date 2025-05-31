@@ -12,15 +12,17 @@ jobs:
         run: |
           curl -H "Content-Type: application/json" \
                -X POST \
-               -d "{
-                 \"embeds\": [{
-                   \"title\": \"🚀 Nová verzia bola vydaná: ${{ github.event.release.tag_name }}\",
-                   \"description\": \"**📌 Názov:** ${{ github.event.release.name }}\\n\\n📝 **Zoznam zmien:**\\n```\n${{ github.event.release.body }}\n``` \",
-                   \"color\": 16753920,
-                   \"footer\": {
-                     \"text\": \"Automatické oznámenie z GitHubu\"
-                   },
-                   \"timestamp\": \"${{ github.event.release.published_at }}\"
-                 }]
-               }" \
+               -d "$(jq -n --arg title "🚀 Nová verzia bola vydaná: ${{ github.event.release.tag_name }}" \
+                        --arg name "${{ github.event.release.name }}" \
+                        --arg body "${{ github.event.release.body }}" \
+                        --arg timestamp "${{ github.event.release.published_at }}" \
+                        '{
+                          embeds: [{
+                            title: $title,
+                            description: "**📌 Názov:** " + $name + "\n\n📝 **Zoznam zmien:**\n" + $body,
+                            color: 16753920,
+                            timestamp: $timestamp
+                          }]
+                        }'
+                  )" \
                ${{ secrets.DISCORD_WEBHOOK }}
