@@ -1,18 +1,26 @@
-name: Notify Discord on Release
+name: Oznámenie releasu na Discord
 
 on:
   release:
     types: [published]
 
 jobs:
-  notify-discord:
+  oznam-na-discord:
     runs-on: ubuntu-latest
     steps:
-      - name: Notify Discord
+      - name: Poslať správu na Discord
         run: |
           curl -H "Content-Type: application/json" \
                -X POST \
                -d "{
-                 \"content\": \"📦 **New Release Published!**\n**Tag:** ${{ github.event.release.tag_name }}\n**Name:** ${{ github.event.release.name }}\n**URL:** ${{ github.event.release.html_url }}\n📝 ${{ github.event.release.body }}\"
+                 \"embeds\": [{
+                   \"title\": \"🚀 Nová verzia bola vydaná: ${{ github.event.release.tag_name }}\",
+                   \"description\": \"**📌 Názov:** ${{ github.event.release.name }}\\n🔗 [Zobraziť release](${{ github.event.release.html_url }})\\n\\n📝 **Zoznam zmien:**\\n```\n${{ github.event.release.body }}\n``` \",
+                   \"color\": 16753920,
+                   \"footer\": {
+                     \"text\": \"Automatické oznámenie z GitHubu\"
+                   },
+                   \"timestamp\": \"${{ github.event.release.published_at }}\"
+                 }]
                }" \
                ${{ secrets.DISCORD_WEBHOOK }}
