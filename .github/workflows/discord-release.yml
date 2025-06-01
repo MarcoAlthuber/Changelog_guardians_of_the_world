@@ -1,32 +1,19 @@
-name: Oznámenie releasu na Discord
+name: Discord Webhook Test
 
 on:
-  release:
-    types: [published]
+  workflow_dispatch:
 
 jobs:
-  oznam-na-discord:
+  test-discord:
     runs-on: ubuntu-latest
     steps:
-      - name: Poslať správu na Discord
+      - name: Odoslať test správu na Discord
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         run: |
-          TAG_NAME="${{ github.event.release.tag_name }}"
-          RELEASE_NAME="${{ github.event.release.name }}"
-          RELEASE_BODY="${{ github.event.release.body }}"
-          RELEASE_TIME="${{ github.event.release.published_at }}"
-
-          JSON=$(printf '{
-            "embeds": [{
-              "title": "🚀 Nová verzia bola vydaná: %s",
-              "description": "**📌 Názov:** %s\n\n📝 **Zoznam zmien:**\n%s",
-              "color": 16753920,
-              "timestamp": "%s"
-            }]
-          }' "$TAG_NAME" "$RELEASE_NAME" "$RELEASE_BODY" "$RELEASE_TIME")
-
-          curl -H "Content-Type: application/json" \
+          curl -v -H "Content-Type: application/json" \
                -X POST \
-               -d "$JSON" \
+               -d '{
+                 "content": "✅ Test správa z GitHub Actions. Ak ju vidíš, webhook funguje!"
+               }' \
                "$DISCORD_WEBHOOK"
