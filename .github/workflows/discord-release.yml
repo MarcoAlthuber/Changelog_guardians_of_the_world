@@ -9,18 +9,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Poslať správu na Discord
+        env:
+          WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK }}
+          TAG_NAME: ${{ github.event.release.tag_name }}
+          RELEASE_NAME: ${{ github.event.release.name }}
+          RELEASE_BODY: ${{ github.event.release.body }}
+          RELEASE_TIME: ${{ github.event.release.published_at }}
         run: |
-          curl -H "Content-Type: application/json" \
-               -X POST \
-               -d "{
-                 \"embeds\": [{
-                   \"title\": \"🚀 Nová verzia bola vydaná: ${{ github.event.release.tag_name }}\",
-                   \"description\": \"**📌 Názov:** ${{ github.event.release.name }}\\n\\n📝 **Zoznam zmien:**\\n```\n${{ github.event.release.body }}\n``` \",
-                   \"color\": 16753920,
-                   \"footer\": {
-                     \"text\": \"Automatické oznámenie z GitHubu\"
-                   },
-                   \"timestamp\": \"${{ github.event.release.published_at }}\"
-                 }]
-               }" \
-               ${{ secrets.DISCORD_WEBHOOK }}
+          ESCAPED_BODY=$(printf "%s" "$RELEASE_BODY" | python3 -c "import json,sys; print(json.dumps(sys.stdin.read()))")
+          
+          JSON=$(cat <<EOF
+{
+  "embeds": [{
+    "title": "🚀 Nová verzia bola vydaná: $TAG_NAME",
+    "description": "**📌 Názov:** $RELEASE_NAME\n\n📝 **Zoznam zmien:**\n${ESCAPED_BODY}",
+    "color": 16753920,
+    "timestamp": "$RELEA
